@@ -1,4 +1,4 @@
-# nomic 展示页
+# ohmic 展示页
 
 本仓库的静态展示页，使用 [VitePress](https://vitepress.dev/) 构建并部署到 GitHub Pages。内容只有项目说明、使用指南、界面预览和更新日志；Rust 程序本身在仓库根目录的 `src/`。
 
@@ -20,9 +20,9 @@ npm run preview   # 预览构建结果
 
 1. 打开仓库 **Settings → Pages → Build and deployment**，把 **Source** 设为 **GitHub Actions**。
 2. 把站点改动推送到 `main`，或在 Actions 页手动运行 **Deploy VitePress site to GitHub Pages**。
-3. 发布后的地址是 `https://asionbo.github.io/nomic/`。
+3. 发布后的地址是 `https://asionbo.github.io/ohmic/`。
 
-工作流只对 `site/**` 和自身文件的改动触发，且用 `VITEPRESS_BASE=/nomic/` 构建，所以不会与 Rust 的 lint / release 工作流互相干扰。若改用自己的域名，把 `VITEPRESS_BASE` 设为 `/`，并在 `site/docs/public/` 放一个名为 `CNAME`、内容为域名的文件即可。
+工作流只对 `site/**` 和自身文件的改动触发，且用 `VITEPRESS_BASE=/ohmic/` 构建，所以不会与 Rust 的 lint / release 工作流互相干扰。若改用自己的域名，把 `VITEPRESS_BASE` 设为 `/`，并在 `site/docs/public/` 放一个名为 `CNAME`、内容为域名的文件即可。
 
 ## 目录结构
 

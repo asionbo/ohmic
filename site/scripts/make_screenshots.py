@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate two WebP screenshots from nomic's real HTML templates.
+"""Generate two WebP screenshots from ohmic's real HTML templates.
 
 Run from the site folder: python3 scripts/make_screenshots.py
 Reads ../assets/*.html and writes the rendered HTML to a temporary directory;
@@ -94,8 +94,8 @@ def main() -> None:
 
     url = "http://192.168.1.23:8765/m?t=example-token"
     lang = {
-        "pair_title": "nomic · 扫码连接",
-        "h1": "nomic · 手机连接",
+        "pair_title": "ohmic · 扫码连接",
+        "h1": "ohmic · 手机连接",
         "sub": "用手机相机或扫码 App 扫描",
         "copy": "复制链接",
         "note_title": "连不上？",
@@ -104,7 +104,7 @@ def main() -> None:
         "note3": "3. 若电脑有多个网卡 / 挂了 VPN，可在托盘菜单的「网络」里换一个地址，再重新打开本页。",
         "note4": "4. 二维码里的地址 192.168.1.23:8765 不能写成 127.0.0.1，否则手机会打开自己。",
         "note5": "5. 链接含一次性令牌；重启程序或点托盘「重新生成令牌」后需重新扫码。",
-        "mobile_title": "nomic · 输入",
+        "mobile_title": "ohmic · 输入",
         "send": "发送到电脑",
         "clear": "清空",
         "placeholder": "在这里输入，或用手机键盘上的麦克风按钮语音听写…",
@@ -169,7 +169,7 @@ def main() -> None:
     if "{{" in mobile:
         raise SystemExit("unreplaced placeholder left in mobile.html")
 
-    with tempfile.TemporaryDirectory(prefix="nomic-screenshots-") as tmp:
+    with tempfile.TemporaryDirectory(prefix="ohmic-screenshots-") as tmp:
         work = Path(tmp)
         render("pair-page", pair, 900, 980, work)
         render("mobile-page", mobile, 430, 800, work)

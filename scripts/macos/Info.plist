@@ -3,15 +3,15 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleName</key>
-	<string>nomic</string>
+	<string>ohmic</string>
 	<key>CFBundleDisplayName</key>
-	<string>nomic</string>
+	<string>ohmic</string>
 	<key>CFBundleIdentifier</key>
-	<string>io.asionbo.nomic.app</string>
+	<string>io.asionbo.ohmic.app</string>
 	<key>CFBundleExecutable</key>
-	<string>nomic</string>
+	<string>ohmic</string>
 	<key>CFBundleIconFile</key>
-	<string>nomic</string>
+	<string>ohmic</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -26,6 +26,6 @@
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>nomic simulates paste keystrokes to insert text you send from your phone.</string>
+	<string>ohmic simulates paste keystrokes to insert text you send from your phone.</string>
 </dict>
 </plist>

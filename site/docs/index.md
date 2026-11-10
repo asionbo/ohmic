@@ -2,7 +2,7 @@
 layout: home
 
 hero:
-  name: nomic
+  name: ohmic
   text: 手机变成电脑的无线键盘
   tagline: 扫码配对，文字与手机语音输入直达电脑光标。纯 Rust 原生实现，单文件约 1.5 MB。
   image:
@@ -14,7 +14,7 @@ hero:
       link: /guide/
     - theme: alt
       text: 下载最新版
-      link: https://github.com/asionbo/nomic/releases/latest
+      link: https://github.com/asionbo/ohmic/releases/latest
     - theme: alt
       text: 查看更新日志
       link: /changelog/
@@ -44,7 +44,7 @@ features:
 
 ```mermaid
 flowchart LR
-  A["手机浏览器<br/>打字 / 语音听写"] -->|"WebSocket · 同一 Wi-Fi"| B["电脑上的 nomic<br/>Rust 托盘进程"]
+  A["手机浏览器<br/>打字 / 语音听写"] -->|"WebSocket · 同一 Wi-Fi"| B["电脑上的 ohmic<br/>Rust 托盘进程"]
   B --> C["写入系统剪贴板"]
   C --> D["模拟 ⌘V / Ctrl+V<br/>粘贴到光标处"]
 ```
@@ -52,5 +52,5 @@ flowchart LR
 电脑端启动时会在本机打开一个二维码页面；手机扫码后打开输入页。两台设备需要在同一个 Wi-Fi 下，流量不离开局域网。
 
 ::: tip 自动粘贴需要系统权限
-macOS 需要在「系统设置 → 隐私与安全性 → 辅助功能」里允许 nomic；Windows 首次启动需要允许防火墙。没有权限时文字仍会写入剪贴板，手动按 ⌘/Ctrl+V 即可。
+macOS 需要在「系统设置 → 隐私与安全性 → 辅助功能」里允许 ohmic；Windows 首次启动需要允许防火墙。没有权限时文字仍会写入剪贴板，手动按 ⌘/Ctrl+V 即可。
 :::

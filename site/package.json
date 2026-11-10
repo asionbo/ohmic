@@ -1,8 +1,8 @@
 {
-  "name": "nomic",
+  "name": "ohmic",
   "version": "1.0.0",
   "private": true,
-  "description": "Static GitHub Pages site for nomic",
+  "description": "Static GitHub Pages site for ohmic",
   "scripts": {
     "dev": "vitepress dev docs",
     "build": "vitepress build docs",

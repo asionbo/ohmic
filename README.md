@@ -1,18 +1,18 @@
-# nomic
+# ohmic
 
 Use your phone as a wireless keyboard for your computer. Type on your phone or use its built-in voice dictation, then send the text straight to your desktop cursor. It's especially useful when your computer has no microphone but you still want to dictate.
 
 Built with native Rust for a tiny memory footprint.
 
-[中文说明](README.zh.md) · [项目主页](https://asionbo.github.io/nomic/) · [站点源码](site/SITE.md)
+[中文说明](README.zh.md) · [项目主页](https://asionbo.github.io/ohmic/) · [站点源码](site/SITE.md)
 
 ## How it works
 
-1. Start nomic. It opens a page with a QR code in your browser.
+1. Start ohmic. It opens a page with a QR code in your browser.
 2. Scan the code with your phone. The input page opens in your phone's browser. Both devices must be on the same Wi-Fi network.
 3. Click the target input field on your computer, then type on your phone and tap Send.
 
-Text is copied to the clipboard and automatically pasted at your cursor (using ⌘V / Ctrl+V). If auto-paste isn't available, you can paste the text manually from the clipboard. Optionally, enable **"Press Enter after paste"** in the tray menu to have nomic also press Enter after each paste — handy for chat apps and search boxes.
+Text is copied to the clipboard and automatically pasted at your cursor (using ⌘V / Ctrl+V). If auto-paste isn't available, you can paste the text manually from the clipboard. Optionally, enable **"Press Enter after paste"** in the tray menu to have ohmic also press Enter after each paste — handy for chat apps and search boxes.
 
 ## Features
 
@@ -29,9 +29,9 @@ Download the latest release:
 
 | Platform | File | Notes |
 |---|---|---|
-| macOS | `nomic-macos-universal.zip` | Universal build for Apple silicon and Intel; verified |
-| Windows | `nomic-windows-x86_64.zip` | 64-bit; no console window |
-| Linux | `nomic-linux-x86_64.tar.gz` | Requires GTK3 and `libayatana-appindicator3` |
+| macOS | `ohmic-macos-universal.zip` | Universal build for Apple silicon and Intel; verified |
+| Windows | `ohmic-windows-x86_64.zip` | 64-bit; no console window |
+| Linux | `ohmic-linux-x86_64.tar.gz` | Requires GTK3 and `libayatana-appindicator3` |
 
 Or build from source:
 
@@ -41,9 +41,9 @@ cargo build --release
 
 ## First run
 
-- **macOS**: Auto-paste requires Accessibility permission. Go to System Settings → Privacy & Security → Accessibility and add nomic. Without permission, nomic falls back to clipboard-only; paste manually with ⌘V.
-- **Windows**: Allow the firewall prompt when you first launch nomic, and make sure your Wi-Fi network is set to *Private*.
-- **Linux**: Requires `libgtk-3-dev` and `libayatana-appindicator3-1` (or your distribution's `libappindicator3-1`). GNOME requires the AppIndicator extension. Auto-paste works on X11; on Wayland, nomic falls back to clipboard-only.
+- **macOS**: Auto-paste requires Accessibility permission. Go to System Settings → Privacy & Security → Accessibility and add ohmic. Without permission, ohmic falls back to clipboard-only; paste manually with ⌘V.
+- **Windows**: Allow the firewall prompt when you first launch ohmic, and make sure your Wi-Fi network is set to *Private*.
+- **Linux**: Requires `libgtk-3-dev` and `libayatana-appindicator3-1` (or your distribution's `libappindicator3-1`). GNOME requires the AppIndicator extension. Auto-paste works on X11; on Wayland, ohmic falls back to clipboard-only.
 
 ## Building from source
 

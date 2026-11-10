@@ -1,14 +1,14 @@
-# nomic
+# ohmic
 
 把手机当作电脑的无线键盘：在手机网页上打字或用语音输入法转文字，一键发送到电脑光标所在位置。目的是解决电脑没有mic，但是又想语音输入的场景。
 
 纯 Rust 原生实现，占用内存极少。
 
-[English](README.md) · [项目主页](https://asionbo.github.io/nomic/) · [站点源码](site/SITE.md)
+[English](README.md) · [项目主页](https://asionbo.github.io/ohmic/) · [站点源码](site/SITE.md)
 
 ## 工作原理
 
-1. 启动 nomic，浏览器自动打开二维码页。
+1. 启动 ohmic，浏览器自动打开二维码页。
 2. 手机扫码（需与电脑连**同一 Wi-Fi**），在手机浏览器打开输入页。
 3. 在电脑上点一下目标输入框，然后在手机上打字、点发送。
 
@@ -29,9 +29,9 @@
 
 | 平台 | 文件 | 说明 |
 |---|---|---|
-| macOS | `nomic-macos-universal.zip` | Apple silicon + Intel 通用 已验证✅|
-| Windows | `nomic-windows-x86_64.zip` | 64 位，无控制台窗口|
-| Linux | `nomic-linux-x86_64.tar.gz` | 需 GTK3 + `libayatana-appindicator3`|
+| macOS | `ohmic-macos-universal.zip` | Apple silicon + Intel 通用 已验证✅|
+| Windows | `ohmic-windows-x86_64.zip` | 64 位，无控制台窗口|
+| Linux | `ohmic-linux-x86_64.tar.gz` | 需 GTK3 + `libayatana-appindicator3`|
 
 或从源码构建：
 
@@ -41,7 +41,7 @@ cargo build --release
 
 ## 首次运行
 
-- **macOS**：自动粘贴需要「辅助功能」授权 —— 系统设置 → 隐私与安全性 → 辅助功能 → 添加 nomic。未授权时自动降级为仅剪贴板（手动 ⌘V）。
+- **macOS**：自动粘贴需要「辅助功能」授权 —— 系统设置 → 隐私与安全性 → 辅助功能 → 添加 ohmic。未授权时自动降级为仅剪贴板（手动 ⌘V）。
 - **Windows**：首次启动允许防火墙提示，并把当前 Wi-Fi 设为「专用网络」。
 - **Linux**：需要 `libgtk-3-dev`、`libayatana-appindicator3-1`（或发行版的 `libappindicator3-1`）；GNOME 需启用 AppIndicator 扩展。X11 下自动粘贴正常，Wayland 下降级为仅剪贴板。
 

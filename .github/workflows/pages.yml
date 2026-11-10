@@ -36,7 +36,7 @@ jobs:
       - name: Build with VitePress
         working-directory: site
         env:
-          # 仓库页地址为 https://<owner>.github.io/nomic/。
+          # 仓库页地址为 https://<owner>.github.io/ohmic/。
           VITEPRESS_BASE: /${{ github.event.repository.name }}/
         run: npm run build
       - uses: actions/configure-pages@v6
