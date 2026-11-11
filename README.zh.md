@@ -4,7 +4,7 @@
 
 纯 Rust 原生实现，占用内存极少。
 
-[English](README.md) · [项目主页](https://asionbo.github.io/ohmic/) · [站点源码](site/SITE.md)
+[English](README.md) · [网站](https://asionbo.github.io/ohmic/)
 
 ## 工作原理
 

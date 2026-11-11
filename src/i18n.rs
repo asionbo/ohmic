@@ -39,10 +39,14 @@ pub struct Strings {
     pub menu_rotate: &'static str,
     pub menu_language: &'static str,
     pub menu_quit: &'static str,
+    pub menu_github: &'static str,
+    pub fmt_version: &'static str, // {version}
     pub status_idle: &'static str,
     pub status_qr_opened: &'static str,
     pub status_link_copied: &'static str,
     pub status_token_rotated: &'static str,
+    pub status_github_opened: &'static str,
+    pub status_github_failed: &'static str,
     pub status_received: &'static str,
     pub status_auto_enter_on: &'static str,
     pub status_auto_enter_off: &'static str,
@@ -99,6 +103,12 @@ impl Strings {
     pub fn fmt_note4(&self, addr: &str) -> String {
         self.pair_note4.replace("{addr}", addr)
     }
+
+    /// 托盘菜单的版本号显示，版本来自 Cargo.toml。
+    pub fn fmt_version(&self) -> String {
+        self.fmt_version
+            .replace("{version}", env!("CARGO_PKG_VERSION"))
+    }
 }
 
 impl Lang {
@@ -130,10 +140,14 @@ const EN: Strings = Strings {
     menu_rotate: "Regenerate token",
     menu_language: "Language",
     menu_quit: "Quit ohmic",
+    menu_github: "Open source on GitHub",
+    fmt_version: "Version {version}",
     status_idle: "Idle · waiting for a phone",
     status_qr_opened: "QR page opened, waiting for a phone",
     status_link_copied: "Phone link copied to clipboard",
     status_token_rotated: "Token updated, scan the QR again",
+    status_github_opened: "GitHub repository opened in browser",
+    status_github_failed: "Could not open the GitHub repository",
     status_received: "Just received text",
     status_auto_enter_on: "Auto-Enter on: Enter is pressed after each paste",
     status_auto_enter_off: "Auto-Enter off",
@@ -191,10 +205,14 @@ const ZH: Strings = Strings {
     menu_rotate: "重新生成令牌",
     menu_language: "语言 / Language",
     menu_quit: "退出 ohmic",
+    menu_github: "开源地址（GitHub）",
+    fmt_version: "版本 {version}",
     status_idle: "空闲 · 等待手机连接",
     status_qr_opened: "已打开二维码，等待手机连接",
     status_link_copied: "已复制手机链接到剪贴板",
     status_token_rotated: "令牌已更新，请重新扫码",
+    status_github_opened: "已在浏览器打开 GitHub 仓库",
+    status_github_failed: "打开 GitHub 仓库失败",
     status_received: "刚收到文本",
     status_auto_enter_on: "自动回车已开启：粘贴后会追加回车键",
     status_auto_enter_off: "自动回车已关闭",

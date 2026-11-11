@@ -5,6 +5,9 @@ use crate::app::{DeliveryMode, Shared, UiCommand};
 use crate::i18n::Lang;
 use crate::icon;
 
+/// 开源仓库地址；托盘菜单点击后在默认浏览器打开。
+const REPOSITORY_URL: &str = "https://github.com/asionbo/ohmic";
+
 pub struct Tray {
     pub icon: TrayIcon,
     status: MenuItem,
@@ -16,6 +19,8 @@ pub struct Tray {
     show_qr: MenuItem,
     copy_link: MenuItem,
     rotate: MenuItem,
+    version: MenuItem,
+    github: MenuItem,
     quit: MenuItem,
     pub show_qr_id: String,
     pub copy_link_id: String,
@@ -23,6 +28,7 @@ pub struct Tray {
     pub clipboard_only_id: String,
     pub auto_enter_id: String,
     pub rotate_id: String,
+    pub github_id: String,
     pub quit_id: String,
     pub network_ids: Vec<String>,
     pub lang_ids: Vec<String>,
@@ -41,6 +47,8 @@ impl Tray {
         let clipboard_only = CheckMenuItem::new(s.menu_clipboard_only, true, !auto_paste, None);
         let auto_enter = CheckMenuItem::new(s.menu_auto_enter, true, false, None);
         let rotate = MenuItem::new(s.menu_rotate, true, None);
+        let version = MenuItem::new(s.fmt_version(), false, None);
+        let github = MenuItem::new(s.menu_github, true, None);
         let network = Submenu::new(s.menu_network, true);
         let mut network_items = Vec::new();
         for ip in shared.candidates.iter() {
@@ -70,6 +78,9 @@ impl Tray {
         menu.append(&language)?;
         menu.append(&rotate)?;
         menu.append(&PredefinedMenuItem::separator())?;
+        menu.append(&version)?;
+        menu.append(&github)?;
+        menu.append(&PredefinedMenuItem::separator())?;
         menu.append(&quit)?;
 
         let show_qr_id = show_qr.id().as_ref().to_string();
@@ -78,6 +89,7 @@ impl Tray {
         let clipboard_only_id = clipboard_only.id().as_ref().to_string();
         let auto_enter_id = auto_enter.id().as_ref().to_string();
         let rotate_id = rotate.id().as_ref().to_string();
+        let github_id = github.id().as_ref().to_string();
         let quit_id = quit.id().as_ref().to_string();
         let network_ids = network_items
             .iter()
@@ -107,6 +119,8 @@ impl Tray {
             show_qr,
             copy_link,
             rotate,
+            version,
+            github,
             quit,
             show_qr_id,
             copy_link_id,
@@ -114,6 +128,7 @@ impl Tray {
             clipboard_only_id,
             auto_enter_id,
             rotate_id,
+            github_id,
             quit_id,
             network_ids,
             lang_ids,
@@ -164,6 +179,8 @@ impl Tray {
         self.show_qr.set_text(s.menu_show_qr);
         self.copy_link.set_text(s.menu_copy_link);
         self.rotate.set_text(s.menu_rotate);
+        self.github.set_text(s.menu_github);
+        self.version.set_text(s.fmt_version());
         self.quit.set_text(s.menu_quit);
         self.icon.set_tooltip(Some(s.tray_tooltip)).ok();
     }
@@ -219,6 +236,17 @@ impl Tray {
             let _ = shared.ui_tx.send(UiCommand::RotateToken);
             self.status
                 .set_text(shared.lang().strings().status_token_rotated);
+            return false;
+        }
+        if id == self.github_id {
+            let s = shared.lang().strings();
+            self.status.set_text(match open::that(REPOSITORY_URL) {
+                Ok(()) => s.status_github_opened,
+                Err(e) => {
+                    tracing::warn!("failed to open repository URL: {e}");
+                    s.status_github_failed
+                }
+            });
             return false;
         }
         if id == self.quit_id {
