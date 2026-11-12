@@ -4,6 +4,7 @@ mod app;
 mod i18n;
 mod icon;
 mod inject;
+mod logging;
 mod qr;
 mod server;
 mod tray;
@@ -27,12 +28,8 @@ use server::HostToClient;
 use tray::Tray;
 
 fn main() -> anyhow::Result<()> {
-    tracing_subscriber::fmt()
-        .with_env_filter(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("warn")),
-        )
-        .init();
+    // 文件日志优先:stderr 在 GUI 启动下通常是 /dev/null,致命错误必须落盘。
+    logging::init();
 
     let args: Vec<String> = std::env::args().collect();
     let preferred_port: u16 = args
@@ -152,10 +149,45 @@ fn main() -> anyhow::Result<()> {
         }
     });
 
+    // ---- 看门狗 ----
+    // 2026-11-11 事故:主 runloop 死循环后进程无声存活 16h(占一核、端口假活)。
+    // 看门狗线程每 20s 发一枚空探测事件并等待事件循环消费:消费了说明 runloop
+    // 活着,连 3 轮(~60s)无消费即记录并退出(退出码 97,便于外部脚本识别重启)。
+    // 子线程无法安全接管 AppKit,因此策略是快速失败,由 launchd/用户重启。
+    let heartbeat = Arc::new(std::sync::atomic::AtomicI64::new(0));
+    {
+        let hb = heartbeat.clone();
+        let probe_proxy = proxy.clone();
+        std::thread::spawn(move || {
+            let mut missed = 0u32;
+            loop {
+                std::thread::sleep(std::time::Duration::from_secs(10));
+                let before = hb.load(Ordering::SeqCst);
+                let _ = probe_proxy.send_event(UserEvent::Heartbeat);
+                std::thread::sleep(std::time::Duration::from_secs(10));
+                if hb.load(Ordering::SeqCst) == before {
+                    missed += 1;
+                    tracing::warn!("watchdog: runloop no heartbeat ({missed}/3)");
+                    if missed >= 3 {
+                        let msg = "watchdog: main runloop hung ~60s; exiting (97)";
+                        tracing::error!("{msg}");
+                        logging::write_fatal(msg);
+                        std::process::exit(97);
+                    }
+                } else {
+                    missed = 0;
+                }
+            }
+        });
+    }
+
     // tao 的 run() 返回 `!`；进程退出时 OS 回收 server 线程。
     event_loop.run(move |event, _, control_flow| match event {
         Event::NewEvents(StartCause::Init) => {
             let _ = proxy.send_event(UserEvent::ShowQr);
+        }
+        Event::UserEvent(UserEvent::Heartbeat) => {
+            heartbeat.fetch_add(1, Ordering::SeqCst);
         }
         Event::UserEvent(UserEvent::ShowQr) => {
             let _ = open::that(shared.pair_url());

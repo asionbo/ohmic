@@ -5,7 +5,26 @@
 /// 渲染质量说明：tray-icon 在 macOS 上把图标缩放到 18pt（Retina 下 36px），
 /// 供它缩放的源图必须明显大于 18pt 且边缘解析式抗锯齿，否则状态栏锯齿明显。
 /// 这里以 128px 渲染（SDF + 1px 解析式羽化），再交给系统高质量下采样。
+///
+/// 状态只有 3 种（空闲/已连接/注入中闪光），进程生命周期内各渲染一次后缓存复用：
+/// 每次 set_icon 都会在 AppKit 侧重建 NSImage，睡眠/唤醒期间高频重建曾与
+/// 一次 SIGSEGV 挂死相关（见 memory ohmic-2026-11-11-hang-incident）。
 pub fn icon(connected: bool, flash: bool) -> tray_icon::Icon {
+    use std::sync::{Mutex, OnceLock};
+    static CACHE: OnceLock<Mutex<std::collections::HashMap<(bool, bool), tray_icon::Icon>>> =
+        OnceLock::new();
+    let cache = CACHE.get_or_init(|| Mutex::new(std::collections::HashMap::new()));
+    let mut map = cache.lock().unwrap();
+    if let Some(cached) = map.get(&(connected, flash)) {
+        // tray_icon::Icon 是 Clone 的（内部 RGBA + 尺寸），克隆开销远低于重渲染。
+        return cached.clone();
+    }
+    let rendered = render(connected, flash);
+    map.insert((connected, flash), rendered.clone());
+    rendered
+}
+
+fn render(connected: bool, flash: bool) -> tray_icon::Icon {
     const S: u32 = 128;
     let mut rgba = vec![0u8; (S * S * 4) as usize];
     let center = (S - 1) as f64 / 2.0;

@@ -76,6 +76,8 @@ pub enum UserEvent {
     Connected(usize),
     ShowQr,
     Status(String),
+    /// 看门狗探测事件：主 runloop 收到即刷新心跳，不产生任何 UI 副作用。
+    Heartbeat,
 }
 
 /// 手机 -> 桌面 的文本消息（JSON 由 ws.rs 定义）。

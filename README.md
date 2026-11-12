@@ -69,6 +69,7 @@ Requires Rust (edition 2024). On Linux, install `libgtk-3-dev libayatana-appindi
 - **Wrong network interface selected** — if you're using a VPN or Docker, choose the correct address from the tray's Network menu.
 - **Auto-paste doesn't work** — on macOS, check Accessibility permission. On Windows, the target window may be running as administrator.
 - The QR code must contain a local network IP address, not `127.0.0.1`.
+- **Logs** — warnings and panics are written to `~/Library/Caches/ohmic/logs/ohmic.log` (macOS) or `~/.cache/ohmic/logs/ohmic.log` (Linux/Windows), in addition to stderr. Increase verbosity with `RUST_LOG=info`.
 
 ## License
 

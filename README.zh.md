@@ -69,6 +69,7 @@ cargo run --release -- --lang zh     # 中文界面（默认英文）
 - **网卡选错** —— 挂 VPN 或 Docker 时，在托盘「网络」菜单里切换地址。
 - **自动粘贴失败** —— macOS：检查辅助功能授权；Windows：目标窗口可能以管理员权限运行。
 - 二维码地址必须是局域网 IP，不能是 `127.0.0.1`。
+- **日志** —— 告警与 panic 会同时写到 `~/Library/Caches/ohmic/logs/ohmic.log`(macOS)或 `~/.cache/ohmic/logs/ohmic.log`(Linux/Windows)，即使 stderr 被 `/dev/null` 吞掉也能保留。`RUST_LOG=info` 可提高详细度。
 
 ## 许可证
 
