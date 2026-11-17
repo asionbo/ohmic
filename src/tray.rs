@@ -51,7 +51,7 @@ impl Tray {
         let github = MenuItem::new(s.menu_github, true, None);
         let network = Submenu::new(s.menu_network, true);
         let mut network_items = Vec::new();
-        for ip in shared.candidates.iter() {
+        for ip in shared.candidates().iter() {
             let item = CheckMenuItem::new(ip.to_string(), true, false, None);
             network.append(&item)?;
             network_items.push(item);
@@ -152,6 +152,22 @@ impl Tray {
             Some(icon::icon(connected, flash)),
             cfg!(target_os = "macos"),
         );
+    }
+
+    /// 候选列表变化后重建「网络」子菜单（muda 支持动态增删项）。
+    pub fn rebuild_network(&mut self, shared: &Shared) {
+        for item in self.network_items.drain(..) {
+            let _ = self.network.remove(&item);
+        }
+        self.network_ids.clear();
+        let candidates = shared.candidates();
+        for ip in &candidates {
+            let item = CheckMenuItem::new(ip.to_string(), true, false, None);
+            self.network_ids.push(item.id().as_ref().to_string());
+            let _ = self.network.append(&item);
+            self.network_items.push(item);
+        }
+        self.set_selected_ip(shared.lan_ip().to_string());
     }
 
     pub fn set_selected_ip(&mut self, selected: String) {
@@ -256,7 +272,9 @@ impl Tray {
         }
         if self.network_ids.contains(&id.to_string()) {
             let idx = self.network_ids.iter().position(|x| x == id).unwrap();
-            let ip = shared.candidates[idx];
+            let ip = shared.candidates()[idx];
+            // 记住手动选择，网络刷新时优先保留该地址（只要它仍在线）。
+            shared.set_manual_ip(Some(ip));
             *shared.lan_ip.write().unwrap() = ip;
             self.set_selected_ip(ip.to_string());
             self.status.set_text(

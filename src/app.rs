@@ -36,7 +36,10 @@ pub struct Shared {
     pub lang: Arc<std::sync::RwLock<Lang>>,
     pub token: Arc<std::sync::RwLock<String>>,
     pub lan_ip: Arc<std::sync::RwLock<Ipv4Addr>>,
-    pub candidates: Arc<Vec<Ipv4Addr>>,
+    /// 当前局域网候选；网络环境变化时由 refresh_network 更新，托盘菜单据此重建。
+    pub candidates: Arc<std::sync::RwLock<Vec<Ipv4Addr>>>,
+    /// 用户手动选过的 IP；None = 自动选最优。refresh_network 优先保留它。
+    pub manual_ip: Arc<std::sync::RwLock<Option<Ipv4Addr>>>,
     pub mode: Arc<std::sync::RwLock<DeliveryMode>>,
     /// 粘贴成功后是否追加模拟回车；托盘菜单开关，默认关闭。
     pub auto_enter: Arc<std::sync::RwLock<bool>>,
@@ -78,6 +81,8 @@ pub enum UserEvent {
     Status(String),
     /// 看门狗探测事件：主 runloop 收到即刷新心跳，不产生任何 UI 副作用。
     Heartbeat,
+    /// 局域网候选或选中 IP 变化：主线程重建托盘「网络」子菜单。
+    NetworkChanged(NetworkChange),
 }
 
 /// 手机 -> 桌面 的文本消息（JSON 由 ws.rs 定义）。
@@ -175,6 +180,16 @@ impl Shared {
     pub fn lan_ip(&self) -> Ipv4Addr {
         *self.lan_ip.read().unwrap()
     }
+    pub fn candidates(&self) -> Vec<Ipv4Addr> {
+        self.candidates.read().unwrap().clone()
+    }
+    /// 用户手动选过的 IP（None 表示始终自动选最优）。
+    pub fn manual_ip(&self) -> Option<Ipv4Addr> {
+        *self.manual_ip.read().unwrap()
+    }
+    pub fn set_manual_ip(&self, ip: Option<Ipv4Addr>) {
+        *self.manual_ip.write().unwrap() = ip;
+    }
     pub fn mode(&self) -> DeliveryMode {
         *self.mode.read().unwrap()
     }
@@ -201,4 +216,54 @@ impl Shared {
             self.token()
         )
     }
+    /// 重新枚举局域网地址并按需切换。返回变化情况供托盘/日志提示。
+    /// - candidates 有变（网卡增减、IP 换了）→ 列表更新，`menu_changed` 要求托盘重建菜单；
+    /// - 当前选中 IP 不在新列表里（手动选的也失效）→ 自动切到评分最高的候选；
+    /// - 手动选的 IP 仍在线则保留不动。
+    pub fn refresh_network(&self) -> NetworkChange {
+        let fresh = lan_candidates();
+        let mut candidates = self.candidates.write().unwrap();
+        let old_selected = *self.lan_ip.read().unwrap();
+        let list_changed = *candidates != fresh;
+        if list_changed {
+            *candidates = fresh.clone();
+        }
+        drop(candidates);
+
+        let selected = if fresh.contains(&old_selected) {
+            old_selected
+        } else if let Some(manual) = self.manual_ip().filter(|ip| fresh.contains(ip)) {
+            manual
+        } else {
+            fresh
+                .first()
+                .copied()
+                .unwrap_or(Ipv4Addr::new(127, 0, 0, 1))
+        };
+        let ip_changed = selected != old_selected;
+        if ip_changed {
+            *self.lan_ip.write().unwrap() = selected;
+        }
+        let change = NetworkChange {
+            list_changed,
+            ip_changed,
+            new_ip: selected,
+        };
+        // 列表或选中 IP 有变时唤醒主线程：重建托盘网络菜单、刷新状态提示。
+        if change.list_changed || change.ip_changed {
+            let _ = self
+                .wake
+                .send_event(crate::app::UserEvent::NetworkChanged(change));
+        }
+        change
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct NetworkChange {
+    /// 候选列表有变，托盘「网络」子菜单需要重建。
+    pub list_changed: bool,
+    /// 选中的 IP 换了，QR 链接随之改变。
+    pub ip_changed: bool,
+    pub new_ip: Ipv4Addr,
 }

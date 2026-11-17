@@ -55,7 +55,8 @@ fn check(state: &Shared, headers: &HeaderMap, t: Option<&str>) -> Option<Respons
     if t != Some(expected.as_str()) {
         return Some(StatusCode::NOT_FOUND.into_response());
     }
-    // DNS rebinding 防护：Host 必须是本机回环或已选 LAN 地址。
+    // DNS rebinding 防护：Host 必须是本机回环或候选 LAN 地址之一。
+    // 允许候选列表内任意 IP：网络刚切换、QR 已重新生成但校验晚一步时也不误杀。
     let host = headers
         .get(header::HOST)
         .and_then(|v| v.to_str().ok())
@@ -63,8 +64,14 @@ fn check(state: &Shared, headers: &HeaderMap, t: Option<&str>) -> Option<Respons
         .split(':')
         .next()
         .unwrap_or("");
-    let lan = state.lan_ip().to_string();
-    if host != "127.0.0.1" && host != "localhost" && host != lan && host != "[::1]" {
+    let allowed = {
+        let mut ok = host == "127.0.0.1" || host == "localhost" || host == "[::1]";
+        if !ok {
+            ok = state.candidates().iter().any(|ip| ip.to_string() == host);
+        }
+        ok
+    };
+    if !allowed {
         return Some(StatusCode::NOT_FOUND.into_response());
     }
     None
@@ -131,6 +138,11 @@ async fn pair_page(
 ) -> Response {
     if let Some(r) = check(&state, &headers, q.t.as_deref()) {
         return r;
+    }
+    // 打开配对页的那一刻先刷新网络：QR 链接必须反映当前 IP，而不是启动时的。
+    let net = state.refresh_network();
+    if net.ip_changed {
+        tracing::info!("network: IP changed to {} while opening /pair", net.new_ip);
     }
     let url = state.mobile_url();
     let s = state.lang().strings();

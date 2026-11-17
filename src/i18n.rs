@@ -52,6 +52,7 @@ pub struct Strings {
     pub status_auto_enter_off: &'static str,
     pub fmt_connected: &'static str,        // {n}
     pub fmt_network_switched: &'static str, // {ip}
+    pub fmt_network_changed: &'static str,  // {ip}
     pub fmt_lang_switched: &'static str,    // {lang}
     // 投递模式
     pub mode_paste: &'static str,
@@ -153,6 +154,7 @@ const EN: Strings = Strings {
     status_auto_enter_off: "Auto-Enter off",
     fmt_connected: "Connected: {n} device(s)",
     fmt_network_switched: "Network switched to {ip}, scan the QR again",
+    fmt_network_changed: "Network address changed to {ip} — show the QR and rescan",
     fmt_lang_switched: "Language switched to English; refresh the phone page for the new language",
     mode_paste: "Paste at cursor",
     mode_clipboard_only: "Copy to clipboard only",
@@ -218,6 +220,7 @@ const ZH: Strings = Strings {
     status_auto_enter_off: "自动回车已关闭",
     fmt_connected: "已连接 {n} 台设备",
     fmt_network_switched: "网络已切换为 {ip}，请重新扫码",
+    fmt_network_changed: "本机地址已变为 {ip}，请重新显示二维码并扫码",
     fmt_lang_switched: "语言已切换为中文，手机页刷新后生效",
     mode_paste: "粘贴到光标处",
     mode_clipboard_only: "仅复制到剪贴板",

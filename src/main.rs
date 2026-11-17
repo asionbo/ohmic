@@ -79,7 +79,8 @@ fn main() -> anyhow::Result<()> {
         lang: Arc::new(std::sync::RwLock::new(lang)),
         token: Arc::new(std::sync::RwLock::new(token)),
         lan_ip: Arc::new(std::sync::RwLock::new(lan_ip)),
-        candidates: Arc::new(candidates),
+        candidates: Arc::new(std::sync::RwLock::new(candidates)),
+        manual_ip: Arc::new(std::sync::RwLock::new(None)),
         mode: Arc::new(std::sync::RwLock::new(if clipboard_only {
             DeliveryMode::ClipboardOnly
         } else {
@@ -149,6 +150,23 @@ fn main() -> anyhow::Result<()> {
         }
     });
 
+    // ---- 网络监视 ----
+    // 一夜过去 DHCP 换了 IP / 换了 Wi-Fi：lan_ip 只在启动时检测会过期。
+    // 后台线程每 30s 重枚举一次；变化经 UserEvent::NetworkChanged 通知主线程
+    // 重建托盘菜单并提示。打开 /pair 页时也会同步刷一次（双保险）。
+    {
+        let net_shared = shared.clone();
+        std::thread::spawn(move || {
+            loop {
+                std::thread::sleep(Duration::from_secs(30));
+                let change = net_shared.refresh_network();
+                if change.ip_changed {
+                    tracing::info!("network: LAN IP changed to {}", change.new_ip);
+                }
+            }
+        });
+    }
+
     // ---- 看门狗 ----
     // 2026-11-11 事故:主 runloop 死循环后进程无声存活 16h(占一核、端口假活)。
     // 看门狗线程每 20s 发一枚空探测事件并等待事件循环消费:消费了说明 runloop
@@ -188,6 +206,20 @@ fn main() -> anyhow::Result<()> {
         }
         Event::UserEvent(UserEvent::Heartbeat) => {
             heartbeat.fetch_add(1, Ordering::SeqCst);
+        }
+        Event::UserEvent(UserEvent::NetworkChanged(change)) => {
+            // 候选列表变了 → 重建「网络」子菜单；选中 IP 变了 → 提示重新扫码。
+            if change.list_changed {
+                tray.rebuild_network(&shared);
+            }
+            if change.ip_changed {
+                let s = shared.lang().strings();
+                tray.set_status(
+                    &s.fmt_network_changed
+                        .replace("{ip}", &change.new_ip.to_string()),
+                );
+                tracing::info!("network: selected IP changed to {}", change.new_ip);
+            }
         }
         Event::UserEvent(UserEvent::ShowQr) => {
             let _ = open::that(shared.pair_url());
